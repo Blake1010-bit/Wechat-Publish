@@ -1,4 +1,5 @@
-# Wechat-Publish · 微信公众号全自动内容生成-发布 skill（Claude Code）
+# Wechat-Publish · 微信公众号运营助手----
+   ----全自动内容生成发布（Claude Code Skill）
 
 这是一个 **Claude Code Skill**：装好之后，Claude就能全自动帮你进行微信公众平台的内容生成和发布，你只需要提出要求，比如「帮我生成一篇 XX 文章并发布」，
 它就会自动搜索资料、写文章、生成图文草稿，也可以根据你的要求删除、编辑已有内容。
