@@ -62,6 +62,12 @@ def get_access_token(appid, secret):
     )
     data = resp.json()
     if "access_token" not in data:
+        if data.get("errcode") == 40164:
+            fail(
+                "获取 access_token 失败：IP 不在白名单",
+                data,
+                hint="请到公众号后台「设置与开发 → 基本配置 → IP白名单」加入报错里的 IP，约 5 分钟生效",
+            )
         fail("获取 access_token 失败", data)
 
     TOKEN_CACHE.write_text(
@@ -76,6 +82,26 @@ def get_access_token(appid, secret):
         encoding="utf-8",
     )
     return data["access_token"]
+
+
+def detect_public_ip():
+    """自动探测本机公网 IP，失败返回 None。"""
+    urls = (
+        "https://ip.3322.net",
+        "https://ifconfig.me/ip",
+        "https://api.ipify.org",
+        "https://ip.sb",
+        "https://ipinfo.io/ip",
+    )
+    for url in urls:
+        try:
+            resp = requests.get(url, timeout=6)
+            m = re.search(r"\d{1,3}(?:\.\d{1,3}){3}", resp.text)
+            if m:
+                return m.group(0)
+        except requests.RequestException:
+            continue
+    return None
 
 
 def detect_type(path, explicit):
@@ -373,10 +399,34 @@ def main():
     parser.add_argument("--md", metavar="文件.md", help="读取 Markdown 文件生成图文草稿")
     parser.add_argument("--author", help="图文作者，默认空")
     parser.add_argument("--digest", help="图文摘要，默认空（微信自动生成）")
+    parser.add_argument("--ip", action="store_true", help="探测本机公网 IP（配白名单用）")
+    parser.add_argument("--setup", action="store_true", help="写入 .env 并显示 IP 白名单指引")
     args = parser.parse_args()
 
     appid = args.appid or os.environ.get("WX_APPID")
     secret = args.appsecret or os.environ.get("WX_APPSECRET")
+
+    if args.ip:
+        ip = detect_public_ip()
+        if ip:
+            print(f"本机公网 IP：{ip}")
+            print("请到公众号后台「设置与开发 → 基本配置 → IP白名单」加入这个 IP，约 5 分钟生效。")
+        else:
+            fail("无法自动探测公网 IP", None, hint="请手动打开 https://ifconfig.me 查看")
+        return
+
+    if args.setup:
+        if not appid or not secret:
+            fail("请提供 appid 和 appsecret", None, hint="用 --appid 和 --appsecret 传入")
+        (BASE / ".env").write_text(
+            f"WX_APPID={appid}\nWX_APPSECRET={secret}\n", encoding="utf-8"
+        )
+        print("[成功] 已写入 .env")
+        ip = detect_public_ip()
+        if ip:
+            print(f"本机公网 IP：{ip}")
+            print("请到公众号后台「设置与开发 → 基本配置 → IP白名单」加入这个 IP，约 5 分钟生效。")
+        return
 
     if not appid or not secret:
         fail(

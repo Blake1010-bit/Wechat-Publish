@@ -15,14 +15,20 @@ metadata:
 用同目录下的 `upload.py` 脚本，把素材和文章上传到用户的微信公众号。
 纯本地运行，无需公网服务器。`upload.py` 与本 SKILL.md 在同一目录。
 
-## 首次使用（前置条件）
+## 首次使用：引导式配置（务必走这个流程）
 
-1. 安装依赖：`pip install -r requirements.txt`（脚本与依赖清单同目录）
-2. 配置密钥：把 `.env.example` 复制为 `.env`，填入 `WX_APPID` 和 `WX_APPSECRET`。
-   - AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开发信息」里，点「重置」生成（需管理员）。
-3. IP 白名单：公众号后台「设置与开发 → 基本配置 → IP白名单」加入本机公网 IP，
-   否则获取 access_token 会报 40164（invalid ip, not in whitelist）。
-   本机公网 IP 用 `curl ifconfig.me` 查看，填进白名单后约 5 分钟生效。
+当用户第一次让你上传/发文章时，**先检查配置是否就绪；没配好就在对话框里引导用户配好**，不要直接报错。
+
+1. 检查与本文件同目录的 `.env` 是否存在，且 `WX_APPID`、`WX_APPSECRET` 都非空。
+2. 若缺失：直接用 AskUserQuestion 或对话问用户要 appid 和 appsecret，然后写入同目录的 `.env`
+   （格式见 `.env.example`）。告诉用户 AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开发信息」
+   点「重置」生成（需管理员）。
+3. 探测 IP：先 cd 到脚本同目录，运行 `python upload.py --ip` 拿到本机公网 IP，
+   把 IP 明确告诉用户，让用户去后台「设置与开发 → 基本配置 → IP白名单」加入这个 IP（约 5 分钟生效）。
+4. 等用户确认「加好了」再继续执行真正的上传/发布。
+   若接口返回 `40164`（invalid ip, not in whitelist），从报错里提取 IP，再次引导用户加白名单。
+
+> 依赖未装时（报 `No module named ...`），先 `pip install -r requirements.txt`。
 
 ## 命令（在脚本同目录执行 `python upload.py ...`）
 
@@ -39,6 +45,7 @@ metadata:
 - **用纯文本生成图文草稿**：`python upload.py --news "标题"`（正文=标题，`--content` 指定正文）
 - **发布草稿**（需认证公众号）：`python upload.py --publish 草稿media_id`
 - **清空素材库**（不可恢复，慎用）：`python upload.py --clear`
+- **探测公网 IP**：`python upload.py --ip`（引导用户配 IP 白名单时用）
 
 ## 关键约束（务必遵守）
 

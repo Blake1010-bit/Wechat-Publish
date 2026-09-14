@@ -73,7 +73,10 @@ git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/w
 
 ## 首次配置
 
-装好 skill 后，还差三步配置（一次性）：
+**这一环节 skill 会自动引导你。** 第一次让 Claude 上传/发文章时，它会直接在对话框里问你要 appid / appsecret、
+自动探测你的公网 IP、并告诉你要加进白名单的 IP，不用你自己去翻文件。
+
+> 想手动配置也完全可以，下面三步就是手动做法。
 
 ### 第 1 步：装 Python 依赖
 
