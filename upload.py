@@ -161,8 +161,21 @@ def ocr_image(path, lang="chi_sim+eng", psm=6):
     custom = Path.home() / ".tessdata"
     if (custom / "chi_sim.traineddata").exists():
         os.environ["TESSDATA_PREFIX"] = str(custom)
+        # 自定义目录里也要有英文包，否则 chi_sim+eng 会因找不到 eng 而失败
+        if not (custom / "eng.traineddata").exists():
+            default_eng = Path(exe).parent / "tessdata" / "eng.traineddata"
+            if default_eng.is_file():
+                import shutil
+                shutil.copy(default_eng, custom / "eng.traineddata")
 
-    img = Image.open(path)
+    if not Path(path).is_file():
+        fail(f"文件不存在：{path}", None)
+
+    try:
+        img = Image.open(path)
+    except Exception:
+        fail(f"无法识别的图片文件：{path}", None)
+
     config = f"--psm {psm}"
     try:
         return pytesseract.image_to_string(img, lang=lang, config=config)
@@ -553,8 +566,6 @@ def main():
 
     if not args.files:
         parser.error("请提供要上传的文件路径，例如：python upload.py ./图片.jpg")
-
-    kind = "临时素材" if args.temp else "永久素材"
 
     for path in args.files:
         p = Path(path)
