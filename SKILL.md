@@ -1,5 +1,5 @@
 ---
-name: wechat-publish
+name: Wechat-Publish
 description: >
   微信公众平台（公众号）内容发布工具。上传素材（图片/语音/视频/缩略图）到素材库、
   用 Markdown 或纯文本生成图文草稿、发布草稿、清空素材库；还能按用户提示词自动搜索资料、
@@ -8,7 +8,7 @@ description: >
 metadata:
   version: "1.0.0"
   license: "MIT"
-  official_repository: "https://github.com/Blake1010-bit/wechat-publish"
+  official_repository: "https://github.com/Blake1010-bit/Wechat-Publish"
 ---
 
 # 微信公众平台发布工具

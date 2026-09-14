@@ -1,4 +1,4 @@
-# wechat-publish · 微信公众号全自动内容生成-发布 skill（Claude Code）
+# Wechat-Publish · 微信公众号全自动内容生成-发布 skill（Claude Code）
 
 这是一个 **Claude Code Skill**：装好之后，Claude就能全自动帮你进行微信公众平台的内容生成和发布，你只需要提出要求，比如「帮我生成一篇 XX 文章并发布」，
 它就会自动搜索资料、写文章、生成图文草稿，也可以根据你的要求删除、编辑已有内容。
@@ -48,14 +48,14 @@ skills 目录如下（没有 `skills` 文件夹就自己新建一个）：
 打开终端，粘这一行：
 
 ```
-git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/wechat-publish
+git clone https://github.com/Blake1010-bit/Wechat-Publish.git ~/.claude/skills/Wechat-Publish
 ```
 
 ### 安装方法二：不会用 git（下载解压）
 
 1. 打开本仓库页面，点绿色「**Code**」按钮 →「**Download ZIP**」
-2. 解压，得到一个 `wechat-publish-main` 文件夹，**重命名成 `wechat-publish`**
-3. 把整个 `wechat-publish` 文件夹，移到上面的 skills 目录里
+2. 解压，得到一个 `Wechat-Publish-main` 文件夹，**重命名成 `Wechat-Publish`**
+3. 把整个 `Wechat-Publish` 文件夹，移到上面的 skills 目录里
    （Windows 就是 `C:\Users\你的用户名\.claude\skills\`）
 
 ### 安装完成后的确认
@@ -209,7 +209,7 @@ Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自�
 标准 Markdown 规则，段落之间要空一行。
 
 **Q：装完后 Claude 没反应？**
-多半是 skill 没放对目录，或 `.env` 没配。先确认文件夹名是 `wechat-publish`、
+多半是 skill 没放对目录，或 `.env` 没配。先确认文件夹名是 `Wechat-Publish`、
 位于 `.claude/skills/` 下，且里面有 `SKILL.md`。
 
 **Q：OCR（识图）怎么用？**
@@ -238,7 +238,7 @@ python upload.py --ocr 图片.png           # 识图/OCR 提取文字（Tesserac
 ## 项目结构
 
 ```
-wechat-publish/
+Wechat-Publish/
 ├── SKILL.md           Claude Code skill 定义（触发条件 + 使用说明）
 ├── upload.py          ← 核心脚本，全部功能在这一个文件里
 ├── requirements.txt   Python 依赖
