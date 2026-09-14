@@ -1,14 +1,13 @@
-# wechat-publish · 微信公众号发布 skill（Claude Code）
+# wechat-publish · 微信公众号全自动内容生成-发布 skill（Claude Code）
 
-这是一个 **Claude Code skill**：装好之后，你用中文跟 Claude 说「帮我生成一篇 XX 文章并发布」，
+这是一个 **Claude Code Skill**：装好之后，你用中文自然语言与 Claude 交互，比如「帮我生成一篇 XX 文章并发布」，
 它就会自动搜索资料、写文章、生成图文草稿。上传素材、Markdown 一键生成图文草稿、清空素材库，都支持。
-**本地运行，无需公网服务器。**
+
 
 > 本项目核心是一个 Python 脚本 `upload.py`，通过 appid + appsecret 换取 access_token
-> 直接调用微信接口，不依赖公网服务器，也不依赖微信云托管。
 
-> ⚠️ **适用范围：内容到「草稿」为止。**
-> 本项目生成的是公众号「草稿」；**发布/群发这一步微信只对认证公众号开放接口**，
+> ⚠️ **声明：本项目工作流到生成公众号「草稿」为止，后续还需人工进入微信公众平台草稿箱提交发布**
+**微信只对认证公众号开放发布/群发的api接口**，
 > 未认证公众号无法通过 API 发布（报 `48001`），只能去后台草稿箱手动点「发布」。
 
 
@@ -38,16 +37,14 @@ Claude Code 的 skill，就是一个放在指定目录里的文件夹。
 Claude 会自动读到这个文件夹里的 `SKILL.md`，然后「学会」这个能力。
 所以安装 skill = 把这个仓库的文件夹，放进 Claude 的 skills 目录。
 
-skills 目录在这里（没有 `skills` 文件夹就自己新建一个）：
+skills 目录如下（没有 `skills` 文件夹就自己新建一个）：
 
 | 系统 | 路径 |
 |---|---|
 | Windows | `C:\Users\你的用户名\.claude\skills\` |
 | macOS / Linux | `~/.claude/skills/` |
 
-> 前提：你已经装好了 Claude Code（桌面 App 或命令行）。没装的话先装 Claude Code。
-
-### 方法一：会用 git
+### 安装方法一：会用 git
 
 打开终端，粘这一行：
 
@@ -55,14 +52,14 @@ skills 目录在这里（没有 `skills` 文件夹就自己新建一个）：
 git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/wechat-publish
 ```
 
-### 方法二：不会用 git（下载解压）
+### 安装方法二：不会用 git（下载解压）
 
 1. 打开本仓库页面，点绿色「**Code**」按钮 →「**Download ZIP**」
 2. 解压，得到一个 `wechat-publish-main` 文件夹，**重命名成 `wechat-publish`**
 3. 把整个 `wechat-publish` 文件夹，移到上面的 skills 目录里
    （Windows 就是 `C:\Users\你的用户名\.claude\skills\`）
 
-### 装完怎么确认
+### 安装完成后的确认
 
 重启 Claude Code（或新开一个对话），说一句：
 
@@ -77,7 +74,7 @@ git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/w
 **这一环节 skill 会自动引导你。** 第一次让 Claude 上传/发文章时，它会直接在对话框里问你要 appid / appsecret、
 自动探测你的公网 IP、并告诉你要加进白名单的 IP，不用你自己去翻文件。
 
-> 想手动配置也完全可以，下面三步就是手动做法。
+> 如用户担心公众号密钥泄露，也可以采取以下手动配置方法。
 
 ### 第 1 步：装 Python 依赖
 
@@ -109,7 +106,7 @@ AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开
 
 ## 怎么用
 
-配置完成后，**直接说人话就行**，比如：
+配置完成后，**直接在对话框提交要求就行**，比如：
 
 - 「帮我生成一篇关于 `XX` 的文章，发成公众号草稿」—— 它会问你文风/篇幅，自己搜索资料、写文章、一次性提交
 - 「帮我把 `文章.md` 发成公众号草稿」
