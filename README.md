@@ -146,7 +146,7 @@ Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自�
 - 纯文本生成图文草稿
 - 发布草稿（需认证公众号）
 - 清空素材库
-- AI 生图（Pollinations.ai 免费，无需 API key）＋ 识图（Claude Code 自带视觉）
+- AI 生图（Pollinations.ai 免费，无需 API key）；识图需外部视觉/OCR 工具（见致谢）
 - access_token 自动缓存，避免频繁请求
 
 ### 没做
@@ -257,7 +257,9 @@ wechat-publish/
 - **更高画质生图（可选）**：[pvliesdonk/image-generation-mcp](https://github.com/pvliesdonk/image-generation-mcp) —— 多提供商生图 MCP（DALL-E / Gemini / Stable Diffusion）
 - **识图 / OCR（可选）**：[HaoyueQin/picture-identification-MCP](https://github.com/HaoyueQin/picture-identification-MCP) —— 本地视觉理解 MCP（vision / ocr）
 
-识图大部分场景由 Claude Code 内置的 Read 工具（视觉能力）完成，无需额外安装。感谢以上项目作者。
+注意：识图依赖「视觉能力」。接入 DeepSeek 等纯文本模型时，Claude 本身**无法看图**，
+需另装上面的识图 MCP 工具（或接入任意带视觉的模型）才能识图。生图（Pollinations）不受影响。
+感谢以上项目作者。
 
 ## 许可
 
