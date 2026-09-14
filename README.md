@@ -50,7 +50,7 @@ skills 目录如下（没有 `skills` 文件夹就自己新建一个）：
 ```
 ### 安装方法二：
 将下载解压得到的 `Wechat-Publish-main` 文件夹**重命名成 `Wechat-Publish`**
-把整个 `Wechat-Publish` 文件夹，移到上面的 skills 目录里
+，然后把整个 `Wechat-Publish` 文件夹移到上面的 skills 目录里
    （Windows 就是 `C:\Users\你的用户名\.claude\skills\`）
 
 ### 安装完成后的确认
