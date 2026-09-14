@@ -43,19 +43,14 @@ skills 目录如下（没有 `skills` 文件夹就自己新建一个）：
 | Windows | `C:\Users\你的用户名\.claude\skills\` |
 | macOS / Linux | `~/.claude/skills/` |
 
-### 安装方法一：会用 git
-
-打开终端，粘这一行：
+### 安装方法一：
+```
+直接将下载的该项目zip文件夹拖入Claude对话框中，让Claude自己学习并安装该skill
 
 ```
-git clone https://github.com/Blake1010-bit/Wechat-Publish.git ~/.claude/skills/Wechat-Publish
-```
-
-### 安装方法二：不会用 git（下载解压）
-
-1. 打开本仓库页面，点绿色「**Code**」按钮 →「**Download ZIP**」
-2. 解压，得到一个 `Wechat-Publish-main` 文件夹，**重命名成 `Wechat-Publish`**
-3. 把整个 `Wechat-Publish` 文件夹，移到上面的 skills 目录里
+### 安装方法二：
+将下载解压得到的 `Wechat-Publish-main` 文件夹**重命名成 `Wechat-Publish`**
+把整个 `Wechat-Publish` 文件夹，移到上面的 skills 目录里
    （Windows 就是 `C:\Users\你的用户名\.claude\skills\`）
 
 ### 安装完成后的确认
