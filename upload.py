@@ -18,6 +18,7 @@ import re
 import sys
 import time
 from pathlib import Path
+from urllib.parse import quote
 
 import requests
 from dotenv import load_dotenv
@@ -101,6 +102,25 @@ def detect_public_ip():
                 return m.group(0)
         except requests.RequestException:
             continue
+    return None
+
+
+def generate_image(prompt, out_path, width=1024, height=1024, model="flux"):
+    """用 Pollinations.ai 免费生图（无需 API key），保存到 out_path，返回路径或 None。
+
+    图片生成后端：https://pollinations.ai
+    """
+    url = f"https://image.pollinations.ai/prompt/{quote(prompt, safe='')}"
+    params = {"width": width, "height": height, "model": model, "nologo": "true"}
+    for _ in range(3):
+        try:
+            resp = requests.get(url, params=params, timeout=120)
+            if resp.status_code == 200 and len(resp.content) >= 1000:
+                Path(out_path).write_bytes(resp.content)
+                return str(out_path)
+        except requests.RequestException:
+            pass
+        time.sleep(2)
     return None
 
 
@@ -401,6 +421,10 @@ def main():
     parser.add_argument("--digest", help="图文摘要，默认空（微信自动生成）")
     parser.add_argument("--ip", action="store_true", help="探测本机公网 IP（配白名单用）")
     parser.add_argument("--setup", action="store_true", help="写入 .env 并显示 IP 白名单指引")
+    parser.add_argument("--gen-image", metavar="提示词", help="用 Pollinations.ai 免费生图（无需 API key）")
+    parser.add_argument("--out", metavar="路径", help="生图保存路径，默认 generated.jpg")
+    parser.add_argument("--width", type=int, default=1024, help="生图宽度，默认 1024")
+    parser.add_argument("--height", type=int, default=1024, help="生图高度，默认 1024")
     args = parser.parse_args()
 
     appid = args.appid or os.environ.get("WX_APPID")
@@ -426,6 +450,15 @@ def main():
         if ip:
             print(f"本机公网 IP：{ip}")
             print("请到公众号后台「设置与开发 → 基本配置 → IP白名单」加入这个 IP，约 5 分钟生效。")
+        return
+
+    if args.gen_image:
+        out = args.out or "generated.jpg"
+        path = generate_image(args.gen_image, out, args.width, args.height)
+        if path:
+            print(f"[成功] 已生成图片：{path}")
+        else:
+            fail("生图失败（Pollinations.ai 未返回有效图片）", None, hint="换个提示词重试，或稍后再试")
         return
 
     if not appid or not secret:

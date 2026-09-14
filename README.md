@@ -146,6 +146,7 @@ Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自�
 - 纯文本生成图文草稿
 - 发布草稿（需认证公众号）
 - 清空素材库
+- AI 生图（Pollinations.ai 免费，无需 API key）＋ 识图（Claude Code 自带视觉）
 - access_token 自动缓存，避免频繁请求
 
 ### 没做
@@ -228,6 +229,7 @@ python upload.py --news "标题" --content "正文"                   # 纯文�
 python upload.py --publish 草稿media_id   # 发布草稿（需认证）
 python upload.py --clear                  # 清空素材库（不可恢复）
 python upload.py --token-only             # 只看 access_token
+python upload.py --gen-image "提示词" --out 图.jpg   # AI 生图（Pollinations.ai 免费）
 ```
 
 ---
@@ -246,6 +248,16 @@ wechat-publish/
 ```
 
 ---
+
+## 致谢
+
+本项目集成 / 推荐了以下开源工具与服务：
+
+- **图像生成（默认）**：[Pollinations.ai](https://pollinations.ai) —— 免费、无需 API key 的文生图服务
+- **更高画质生图（可选）**：[pvliesdonk/image-generation-mcp](https://github.com/pvliesdonk/image-generation-mcp) —— 多提供商生图 MCP（DALL-E / Gemini / Stable Diffusion）
+- **识图 / OCR（可选）**：[HaoyueQin/picture-identification-MCP](https://github.com/HaoyueQin/picture-identification-MCP) —— 本地视觉理解 MCP（vision / ocr）
+
+识图大部分场景由 Claude Code 内置的 Read 工具（视觉能力）完成，无需额外安装。感谢以上项目作者。
 
 ## 许可
 
