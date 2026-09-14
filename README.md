@@ -1,89 +1,191 @@
-# wechat-publish
-
-微信公众平台（公众号）内容发布工具，做成 Claude Code skill。本地运行，无需公网服务器。
+# 微信公众号内容发布工具（本地运行，无需公网服务器）
 
 用 Markdown 写好文章，一条命令变成公众号图文草稿；也能传素材、发草稿、清素材库。
 
-## 功能
+> 本项目提供一个本地 Python 脚本 `upload.py`，通过 appid + appsecret 换取 access_token
+> 直接调用微信接口，全程不依赖公网服务器，也不依赖微信云托管。
 
-- 上传素材：图片 / 语音 / 视频 / 缩略图（永久素材或临时素材）
-- 用 **Markdown** 生成图文草稿（正文本地图片自动上传、封面自动裁剪）
-- 用纯文本生成图文草稿
-- 发布草稿（需认证公众号）
-- 清空素材库
+> ⚠️ **适用范围：内容到「草稿」为止。**
+> 本项目生成的是公众号「草稿」；**发布/群发这一步微信只对认证公众号开放接口**，
+> 未认证公众号无法通过 API 发布（报 `48001`），只能去后台草稿箱手动点「发布」。
 
-## 安装
 
-1. 把本仓库克隆到 Claude Code 的 skills 目录：
+---
 
-   ```bash
-   git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/wechat-publish
-   ```
+## 目录
 
-2. 安装依赖：
+- [30 秒上手](#30-秒上手)
+- [这个项目解决什么问题](#这个项目解决什么问题)
+- [它做了什么、没做什么](#它做了什么没做什么)
+- [风险声明](#风险声明)
+- [遇到问题](#遇到问题)
+- [常见问题](#常见问题)
+- [命令速查](#命令速查)
+- [项目结构](#项目结构)
+- [许可](#许可)
 
-   ```bash
-   pip install -r ~/.claude/skills/wechat-publish/requirements.txt
-   ```
+---
 
-3. 配置密钥：
+## 30 秒上手
 
-   ```bash
-   cp ~/.claude/skills/wechat-publish/.env.example ~/.claude/skills/wechat-publish/.env
-   # 编辑 .env，填入 WX_APPID 和 WX_APPSECRET
-   ```
+### 第 1 步：装依赖
 
-   AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开发信息」里，点「重置」生成（需管理员）。
+需要 Python 3.8+，然后：
 
-4. 配置 IP 白名单：
-
-   公众号后台「设置与开发 → 基本配置 → IP白名单」加入本机公网 IP（`curl ifconfig.me` 查看），
-   否则拿 access_token 会报 `40164`。填好后约 5 分钟生效。
-
-## 用法
-
-```bash
-cd ~/.claude/skills/wechat-publish
-
-# 上传素材（永久素材）
-python upload.py 图片.jpg 语音.mp3 视频.mp4
-
-# 上传临时素材（3 天）
-python upload.py 图片.jpg --temp
-
-# Markdown 转图文草稿（推荐写文章）
-python upload.py --md 文章.md --author 作者 --digest 摘要
-
-# 纯文本草稿
-python upload.py --news "标题"
-
-# 发布草稿（需认证公众号）
-python upload.py --publish 草稿media_id
-
-# 清空素材库（不可恢复）
-python upload.py --clear
+```
+pip install -r requirements.txt
 ```
 
-### Markdown 格式说明
+### 第 2 步：填密钥
 
-- 第一个 `#` 标题会作为文章标题，并从正文移除
-- 正文里 `![说明](本地图片.png)` 的本地图片会自动上传到微信
-- 封面默认取正文第一张图（自动裁成 2.35:1），也可 `--thumb 封面.jpg` 指定
-- 支持标题 / 加粗 / 斜体 / 列表 / 引用 / 代码块 / 表格
-- 段落之间要空行
+把 `.env.example` 复制成 `.env`，填入：
 
-## 注意事项
+```
+WX_APPID=你的appid
+WX_APPSECRET=你的appsecret
+```
 
-- 生成的是「**草稿**」，需在公众号后台「草稿箱」手动发布
-- **未认证公众号无法通过 API 发布/群发**（报 `48001`），需要先做微信认证
-- 微信已停用 `material/add_news`（新增永久图文）接口，本工具用草稿箱 `draft/add` 替代
-- `.env` 含密钥，已被 `.gitignore` 排除，切勿提交
+AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开发信息」里，点「重置」生成（需管理员）。
 
-## 依赖
+### 第 3 步：配 IP 白名单
 
-- Python 3.8+
-- `requests`、`python-dotenv`、`Markdown`、`Pillow`
+公众号后台「设置与开发 → 基本配置 → IP白名单」加入本机公网 IP。
 
-## License
+> 本机公网 IP 用 `curl ifconfig.me` 查看。不配白名单，拿 access_token 会报
+> `40164`（invalid ip, not in whitelist），配好后约 5 分钟生效。
 
-MIT
+### 第 4 步：跑第一条命令
+
+| 你想做什么 | 跑这个 |
+|---|---|
+| 上传一张图片 | `python upload.py 图片.jpg` |
+| 用 Markdown 发文章 | `python upload.py --md 文章.md` |
+| 传一个纯文本草稿 | `python upload.py --news "标题"` |
+| 只测试密钥对不对 | `python upload.py --token-only` |
+
+---
+
+## 这个项目解决什么问题
+
+想把内容发到公众号，通常要么登录后台手动排版，要么自己写一堆微信接口调用：
+
+- 手动排版：正文图片要一张张传、封面要自己裁、HTML 手写很痛苦 ✗
+- 直接调接口：access_token 要自己存、自己刷新，还要处理 IP 白名单、素材/草稿/发布一堆接口 ✗
+
+本项目把这些收进一个脚本：
+
+- **Markdown 写好文章，一条命令变成草稿** —— 正文里的本地图片自动上传、封面自动裁成 2.35:1
+- **access_token 自动获取并缓存**，不用自己管
+- 素材上传、纯文本草稿、发布、清空素材库，都有对应命令
+
+---
+
+## 它做了什么、没做什么
+
+### 做了
+
+- 上传图片 / 语音 / 视频 / 缩略图（永久素材或临时素材）
+- Markdown → 图文草稿：第一个 `#` 是标题，正文 `![说明](本地图.png)` 自动上传，封面自动裁剪
+- 纯文本生成图文草稿
+- 发布草稿（需认证公众号）
+- 清空素材库
+- access_token 自动缓存，避免频繁请求
+
+### 没做
+
+- 不自动发布/群发到粉丝（接口要求认证，未认证只能后台手动点）
+- 不做正文代码高亮、复杂样式（微信正文本身对样式支持有限）
+- 不管理多个公众号（一个 `.env` 配置一个账号）
+
+---
+
+## 风险声明
+
+**请在开始前阅读**
+
+0. **未认证公众号无法用 API 发布/群发**
+   发布（`freepublish`）和群发接口微信只对认证公众号开放。
+   未认证时调用会报 `48001 api unauthorized`，这是账号权限，不是脚本问题。
+
+1. **`--clear` 会永久删除素材**
+   清空素材库不可恢复，删之前确认清楚。
+
+2. **AppSecret 是敏感密钥**
+   `.env` 已被 `.gitignore` 排除，切勿提交到 git 或发给别人。
+   泄露后别人能以你公众号的身份调接口。
+
+3. **微信已停用「新增永久图文」接口**
+   旧的 `material/add_news` 已下线（报 `45106`），本项目用草稿箱 `draft/add` 替代，
+   所以产物是「草稿」，而不是旧的「永久图文素材」。
+
+---
+
+## 遇到问题
+
+常见的微信报错，按错误码对号入座：
+
+| 错误码 | 意思 | 怎么办 |
+|---|---|---|
+| `40164` | IP 不在白名单 | 后台「IP白名单」加入本机公网 IP，等约 5 分钟 |
+| `48001` | 接口未授权（多半是未认证） | 发布/群发需认证；或去后台手动操作 |
+| `45106` | 接口已停用 | 调了旧接口，请用最新版脚本（已改用 `draft/add`） |
+| `40013` / `40125` | appid / appsecret 不对 | 核对 `.env` 里的值 |
+| `45009` | 接口日配额耗尽 | 明天再试 |
+
+---
+
+## 常见问题
+
+**Q：会封号吗？**
+不会。走的是微信官方公开接口，不涉及破解、刷量、绕过限制。
+
+**Q：需要公网服务器吗？**
+不需要。上传素材、建草稿是「主动调用接口」，本地脚本能联网即可。
+只有「接收用户消息」这类被动场景才需要公网服务器。
+
+**Q：未认证公众号能发文章吗？**
+能建草稿，但**不能通过 API 发布/群发**。去后台「草稿箱」手动点「发布」可以。
+想自动化发布，先做微信认证（¥300/年）。
+
+**Q：临时素材和永久素材什么区别？**
+临时素材 3 天有效，返回 `media_id`；永久素材进素材库，长期保留。
+`--temp` 传临时，默认传永久。
+
+**Q：Markdown 为什么段落会粘在一起？**
+标准 Markdown 规则，段落之间要空一行。
+
+---
+
+## 命令速查
+
+```
+python upload.py 文件1 文件2 ...          # 上传永久素材
+python upload.py 文件 --temp              # 上传临时素材（3 天）
+python upload.py 视频.mp4 --title "标题" --introduction "简介"   # 视频
+python upload.py --md 文章.md --author 作者 --digest 摘要        # Markdown 转草稿
+python upload.py --news "标题" --content "正文"                   # 纯文本草稿
+python upload.py --publish 草稿media_id   # 发布草稿（需认证）
+python upload.py --clear                  # 清空素材库（不可恢复）
+python upload.py --token-only             # 只看 access_token
+```
+
+---
+
+## 项目结构
+
+```
+wechat-publish/
+├── SKILL.md           Claude Code skill 定义（触发条件 + 使用说明）
+├── upload.py          ← 核心脚本，全部功能在这一个文件里
+├── requirements.txt   Python 依赖
+├── .env.example       配置模板（复制成 .env 填密钥）
+├── .gitignore         排除 .env / 缓存
+├── README.md
+└── LICENSE
+```
+
+---
+
+## 许可
+
+MIT（仅适用于本项目的代码与文档）。
