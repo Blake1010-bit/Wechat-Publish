@@ -1,9 +1,10 @@
-# 微信公众号内容发布工具（本地运行，无需公网服务器）
+# wechat-publish · 微信公众号发布 skill（Claude Code）
 
-用 Markdown 写好文章，一条命令变成公众号图文草稿；也能传素材、发草稿、清素材库。
+这是一个 **Claude Code skill**：装好之后，你用中文跟 Claude 说「帮我把这篇 Markdown 发成公众号草稿」，
+它就会自动调用本工具完成。上传素材、Markdown 一键生成图文草稿、清空素材库，都支持。**本地运行，无需公网服务器。**
 
-> 本项目提供一个本地 Python 脚本 `upload.py`，通过 appid + appsecret 换取 access_token
-> 直接调用微信接口，全程不依赖公网服务器，也不依赖微信云托管。
+> 本项目核心是一个 Python 脚本 `upload.py`，通过 appid + appsecret 换取 access_token
+> 直接调用微信接口，不依赖公网服务器，也不依赖微信云托管。
 
 > ⚠️ **适用范围：内容到「草稿」为止。**
 > 本项目生成的是公众号「草稿」；**发布/群发这一步微信只对认证公众号开放接口**，
@@ -14,31 +15,77 @@
 
 ## 目录
 
-- [30 秒上手](#30-秒上手)
+- [安装（小白看这里）](#安装小白看这里)
+- [首次配置](#首次配置)
+- [怎么用](#怎么用)
 - [这个项目解决什么问题](#这个项目解决什么问题)
 - [它做了什么、没做什么](#它做了什么没做什么)
 - [风险声明](#风险声明)
 - [遇到问题](#遇到问题)
 - [常见问题](#常见问题)
-- [命令速查](#命令速查)
+- [命令速查（手动跑命令用）](#命令速查手动跑命令用)
 - [项目结构](#项目结构)
 - [许可](#许可)
 
 ---
 
-## 30 秒上手
+## 安装（小白看这里）
 
-### 第 1 步：装依赖
+### 先知道一件事：skill 是什么
 
-需要 Python 3.8+，然后：
+Claude Code 的 skill，就是一个放在指定目录里的文件夹。
+Claude 会自动读到这个文件夹里的 `SKILL.md`，然后「学会」这个能力。
+所以安装 skill = 把这个仓库的文件夹，放进 Claude 的 skills 目录。
+
+skills 目录在这里（没有 `skills` 文件夹就自己新建一个）：
+
+| 系统 | 路径 |
+|---|---|
+| Windows | `C:\Users\你的用户名\.claude\skills\` |
+| macOS / Linux | `~/.claude/skills/` |
+
+> 前提：你已经装好了 Claude Code（桌面 App 或命令行）。没装的话先装 Claude Code。
+
+### 方法一：会用 git
+
+打开终端，粘这一行：
 
 ```
-pip install -r requirements.txt
+git clone https://github.com/Blake1010-bit/wechat-publish.git ~/.claude/skills/wechat-publish
 ```
+
+### 方法二：不会用 git（下载解压）
+
+1. 打开本仓库页面，点绿色「**Code**」按钮 →「**Download ZIP**」
+2. 解压，得到一个 `wechat-publish-main` 文件夹，**重命名成 `wechat-publish`**
+3. 把整个 `wechat-publish` 文件夹，移到上面的 skills 目录里
+   （Windows 就是 `C:\Users\你的用户名\.claude\skills\`）
+
+### 装完怎么确认
+
+重启 Claude Code（或新开一个对话），说一句：
+
+> 「帮我看看公众号素材」
+
+如果 Claude 开始找 `upload.py`、问你 appid，就说明 skill 装好并生效了。
+
+---
+
+## 首次配置
+
+装好 skill 后，还差三步配置（一次性）：
+
+### 第 1 步：装 Python 依赖
+
+```
+pip install requests python-dotenv Markdown Pillow
+```
+
+（等价于 `pip install -r requirements.txt`。）
 
 ### 第 2 步：填密钥
 
-把 `.env.example` 复制成 `.env`，填入：
+在 skill 文件夹里，把 `.env.example` 复制一份，改名为 `.env`，填入：
 
 ```
 WX_APPID=你的appid
@@ -54,14 +101,19 @@ AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开
 > 本机公网 IP 用 `curl ifconfig.me` 查看。不配白名单，拿 access_token 会报
 > `40164`（invalid ip, not in whitelist），配好后约 5 分钟生效。
 
-### 第 4 步：跑第一条命令
+---
 
-| 你想做什么 | 跑这个 |
-|---|---|
-| 上传一张图片 | `python upload.py 图片.jpg` |
-| 用 Markdown 发文章 | `python upload.py --md 文章.md` |
-| 传一个纯文本草稿 | `python upload.py --news "标题"` |
-| 只测试密钥对不对 | `python upload.py --token-only` |
+## 怎么用
+
+配置完成后，**直接说人话就行**，比如：
+
+- 「帮我把 `文章.md` 发成公众号草稿」
+- 「把这张 `图片.jpg` 上传到素材库」
+- 「清空我的公众号素材库」
+
+Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自己记命令。
+
+> 想自己手动跑命令也行，见文末「命令速查」。
 
 ---
 
@@ -72,7 +124,7 @@ AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开
 - 手动排版：正文图片要一张张传、封面要自己裁、HTML 手写很痛苦 ✗
 - 直接调接口：access_token 要自己存、自己刷新，还要处理 IP 白名单、素材/草稿/发布一堆接口 ✗
 
-本项目把这些收进一个脚本：
+本项目把这些收进一个 skill：
 
 - **Markdown 写好文章，一条命令变成草稿** —— 正文里的本地图片自动上传、封面自动裁成 2.35:1
 - **access_token 自动获取并缓存**，不用自己管
@@ -154,9 +206,13 @@ AppSecret 在公众号后台「设置与开发 → 基本配置 → 公众号开
 **Q：Markdown 为什么段落会粘在一起？**
 标准 Markdown 规则，段落之间要空一行。
 
+**Q：装完后 Claude 没反应？**
+多半是 skill 没放对目录，或 `.env` 没配。先确认文件夹名是 `wechat-publish`、
+位于 `.claude/skills/` 下，且里面有 `SKILL.md`。
+
 ---
 
-## 命令速查
+## 命令速查（手动跑命令用）
 
 ```
 python upload.py 文件1 文件2 ...          # 上传永久素材
