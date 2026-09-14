@@ -49,11 +49,11 @@ Pollinations.ai 负责生图（免费、无需 API key）**。
    运行 `python upload.py --gen-image "图风描述" --out 封面.jpg`，在 Markdown 里
    用 `![说明](封面.jpg)` 引用；`--md` 会自动上传这些图，封面自动裁成 2.35:1。
    若本环境有画质更好的图像生成 MCP 工具，优先用 MCP，Pollinations 兜底。
-5. **识图（用户给了参考图时）**：先判断当前模型有没有视觉能力——
-   - 有视觉（Read 工具真能读图）→ 直接看参考图，把风格、配色写进第 4 步生图提示词；
-   - 无视觉（例如接入 DeepSeek 等纯文本模型）→ 检测环境里有没有识图 / OCR 的 MCP 工具，
-     有就用；没有就如实告诉用户「当前模型无法识图」，请用户改用文字描述图风，
-     或引导其安装识图 MCP 工具（见 README 致谢）。
+5. **识图（用户给了参考图时）**：
+   - **提取文字**：运行 `python upload.py --ocr 参考图.png`（内置 Tesseract OCR，支持中英文）；
+   - **理解风格/配色**（需视觉，DeepSeek 等纯文本模型做不到）：先判断当前模型有没有视觉——
+     有视觉（Read 工具真能读图）→ 直接看参考图，把风格、配色写进第 4 步生图提示词；
+     无视觉 → 如实说明「无法理解图片风格」，请用户改用文字描述图风。
 6. **提交**：运行 `python upload.py --md 标题.md --author 作者 --digest 摘要` 生成草稿。
 7. **交付**：报告草稿 media_id，提醒用户去后台「草稿箱」手动发布（未认证无法 API 发布）。
 
@@ -75,6 +75,7 @@ Pollinations.ai 负责生图（免费、无需 API key）**。
 - **发布草稿**（需认证公众号）：`python upload.py --publish 草稿media_id`
 - **清空素材库**（不可恢复，慎用）：`python upload.py --clear`
 - **探测公网 IP**：`python upload.py --ip`（引导用户配 IP 白名单时用）
+- **识图/OCR 提取文字**：`python upload.py --ocr 图片.png`（内置 Tesseract，支持中英文）
 
 ## 关键约束（务必遵守）
 

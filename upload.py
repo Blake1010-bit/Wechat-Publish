@@ -124,6 +124,53 @@ def generate_image(prompt, out_path, width=1024, height=1024, model="flux"):
     return None
 
 
+def find_tesseract():
+    """定位 tesseract.exe，找不到返回 None。"""
+    import shutil
+    exe = shutil.which("tesseract")
+    if exe:
+        return exe
+    for c in (
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+        "/usr/bin/tesseract",
+        "/usr/local/bin/tesseract",
+    ):
+        if Path(c).is_file():
+            return c
+    return None
+
+
+def ocr_image(path, lang="chi_sim+eng", psm=6):
+    """用 Tesseract 提取图片文字（识图/OCR），返回文本。"""
+    try:
+        import pytesseract
+        from PIL import Image
+    except ImportError:
+        fail("OCR 需要 pytesseract 和 Pillow", None, hint="pip install pytesseract pillow")
+
+    exe = find_tesseract()
+    if not exe:
+        fail(
+            "未找到 Tesseract OCR",
+            None,
+            hint="安装：winget install UB-Mannheim.TesseractOCR，然后 pip install pytesseract",
+        )
+    pytesseract.pytesseract.tesseract_cmd = exe
+
+    custom = Path.home() / ".tessdata"
+    if (custom / "chi_sim.traineddata").exists():
+        os.environ["TESSDATA_PREFIX"] = str(custom)
+
+    img = Image.open(path)
+    config = f"--psm {psm}"
+    try:
+        return pytesseract.image_to_string(img, lang=lang, config=config)
+    except pytesseract.TesseractError:
+        # 语言包缺失时退回英文
+        return pytesseract.image_to_string(img, lang="eng", config=config)
+
+
 def detect_type(path, explicit):
     if explicit:
         return explicit
@@ -425,6 +472,9 @@ def main():
     parser.add_argument("--out", metavar="路径", help="生图保存路径，默认 generated.jpg")
     parser.add_argument("--width", type=int, default=1024, help="生图宽度，默认 1024")
     parser.add_argument("--height", type=int, default=1024, help="生图高度，默认 1024")
+    parser.add_argument("--ocr", metavar="图片路径", help="用 Tesseract 提取图片文字（识图/OCR）")
+    parser.add_argument("--lang", default="chi_sim+eng", help="OCR 语言，默认 chi_sim+eng")
+    parser.add_argument("--psm", type=int, default=6, help="OCR 页面分割模式（Tesseract PSM），默认 6")
     args = parser.parse_args()
 
     appid = args.appid or os.environ.get("WX_APPID")
@@ -459,6 +509,10 @@ def main():
             print(f"[成功] 已生成图片：{path}")
         else:
             fail("生图失败（Pollinations.ai 未返回有效图片）", None, hint="换个提示词重试，或稍后再试")
+        return
+
+    if args.ocr:
+        print(ocr_image(args.ocr, args.lang, args.psm))
         return
 
     if not appid or not secret:

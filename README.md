@@ -146,7 +146,7 @@ Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自�
 - 纯文本生成图文草稿
 - 发布草稿（需认证公众号）
 - 清空素材库
-- AI 生图（Pollinations.ai 免费，无需 API key）；识图需外部视觉/OCR 工具（见致谢）
+- AI 生图（Pollinations.ai 免费，无需 API key）；识图/OCR（内置 Tesseract，支持中英文）
 - access_token 自动缓存，避免频繁请求
 
 ### 没做
@@ -216,6 +216,10 @@ Claude 会自动调用 skill，按你的话挑对应命令执行，你不用自�
 多半是 skill 没放对目录，或 `.env` 没配。先确认文件夹名是 `wechat-publish`、
 位于 `.claude/skills/` 下，且里面有 `SKILL.md`。
 
+**Q：OCR（识图）怎么用？**
+先装 Tesseract：`winget install UB-Mannheim.TesseractOCR`，再 `pip install pytesseract`；
+中文识别需下载 `chi_sim.traineddata` 放到 `~/.tessdata/`。装好后 `python upload.py --ocr 图片.png`。
+
 ---
 
 ## 命令速查（手动跑命令用）
@@ -230,6 +234,7 @@ python upload.py --publish 草稿media_id   # 发布草稿（需认证）
 python upload.py --clear                  # 清空素材库（不可恢复）
 python upload.py --token-only             # 只看 access_token
 python upload.py --gen-image "提示词" --out 图.jpg   # AI 生图（Pollinations.ai 免费）
+python upload.py --ocr 图片.png           # 识图/OCR 提取文字（Tesseract）
 ```
 
 ---
@@ -254,11 +259,12 @@ wechat-publish/
 本项目集成 / 推荐了以下开源工具与服务：
 
 - **图像生成（默认）**：[Pollinations.ai](https://pollinations.ai) —— 免费、无需 API key 的文生图服务
+- **识图 / OCR（内置）**：[Tesseract OCR](https://github.com/tesseract-ocr/tesseract) —— 免费开源的文字识别引擎，本工具用它提取图片文字（中英文）
 - **更高画质生图（可选）**：[pvliesdonk/image-generation-mcp](https://github.com/pvliesdonk/image-generation-mcp) —— 多提供商生图 MCP（DALL-E / Gemini / Stable Diffusion）
-- **识图 / OCR（可选）**：[HaoyueQin/picture-identification-MCP](https://github.com/HaoyueQin/picture-identification-MCP) —— 本地视觉理解 MCP（vision / ocr）
+- **理解图片风格（可选，需视觉模型）**：[HaoyueQin/picture-identification-MCP](https://github.com/HaoyueQin/picture-identification-MCP) —— 本地视觉理解 MCP（vision / ocr）
 
-注意：识图依赖「视觉能力」。接入 DeepSeek 等纯文本模型时，Claude 本身**无法看图**，
-需另装上面的识图 MCP 工具（或接入任意带视觉的模型）才能识图。生图（Pollinations）不受影响。
+注意：Tesseract 只能「提取文字」，不能「看懂风格/配色」。接入 DeepSeek 等纯文本模型时，
+Claude 本身无法看图，要理解图片内容需另装视觉 MCP 工具（或接入任意带视觉的模型）。
 感谢以上项目作者。
 
 ## 许可
